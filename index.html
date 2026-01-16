@@ -3,270 +3,229 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema Tarapoto v3.0 - Catálogo Integrado</title>
+    <title>Sistema Agencia v9 - Edición y Flexibilidad</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root {
-            --primary: #005f73;
-            --secondary: #0a9396;
-            --light: #e9d8a6;
-            --bg: #f1f5f9;
-            --danger: #ae2012;
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #f39c12; /* Naranja para edición */
             --success: #27ae60;
+            --danger: #c0392b;
+            --bg: #f4f6f7;
+            --text: #2c3e50;
         }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; background: var(--bg); color: #333; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 100px; }
         
-        /* NAV BAR */
-        .navbar { background: var(--primary); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; color: white; }
-        .nav-links button { background: none; border: none; color: white; font-size: 1.1em; margin-left: 20px; cursor: pointer; opacity: 0.8; font-weight: bold; padding-bottom: 5px; }
-        .nav-links button.active { opacity: 1; border-bottom: 3px solid var(--light); }
-        .nav-links button:hover { opacity: 1; }
-
-        /* LAYOUT */
+        /* GENERAL UI */
         .container { max-width: 1200px; margin: 20px auto; padding: 0 15px; }
-        .view-section { display: none; } /* Ocultar vistas por defecto */
-        .view-section.active { display: block; animation: fadeIn 0.3s; }
-        
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .view-section { display: none; animation: fadeIn 0.3s; }
+        .view-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* CARDS & FORMS */
-        .card { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
-        
-        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9em; color: #555; }
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-family: inherit; }
+        /* NAVBAR */
+        .navbar { background: var(--primary); padding: 15px 20px; color: white; display: flex; justify-content: space-between; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .nav-brand { font-weight: bold; font-size: 1.2em; display: flex; align-items: center; gap: 10px; }
+        .nav-menu button { background: rgba(255,255,255,0.1); border: none; color: white; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin-left: 5px; transition: 0.2s; }
+        .nav-menu button:hover, .nav-menu button.active { background: var(--secondary); }
+
+        /* CARDS */
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #e9ecef; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+
+        input, select, textarea { width: 100%; padding: 9px; border: 1px solid #ced4da; border-radius: 5px; box-sizing: border-box; font-size: 14px; }
         input:focus { outline: 2px solid var(--secondary); border-color: transparent; }
+        label { display: block; font-size: 0.85em; font-weight: 700; color: #6c757d; margin-bottom: 4px; }
 
-        /* BOTONES */
-        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-success { background: var(--success); color: white; }
-        .btn-danger { background: var(--danger); color: white; padding: 5px 10px; font-size: 0.8em; }
-        .btn-outline { border: 2px solid var(--primary); color: var(--primary); background: transparent; }
-        .btn:hover { transform: scale(1.02); opacity: 0.95; }
-
-        /* CATALOGO VISUAL */
-        .catalog-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; margin-top: 20px; }
-        .catalog-item { border: 1px solid #eee; border-radius: 8px; padding: 15px; background: #fff; position: relative; }
-        .catalog-item img { width: 100%; height: 120px; object-fit: cover; border-radius: 4px; margin-bottom: 10px; background: #eee; }
-        .catalog-item h4 { margin: 5px 0; color: var(--primary); }
-        .tag { background: #e0fbfc; color: #005f73; padding: 2px 6px; border-radius: 4px; font-size: 0.75em; font-weight: bold; }
-
-        /* TABLAS COTIZADOR */
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { background: var(--primary); color: white; padding: 12px; text-align: left; font-size: 0.9em; }
-        td { padding: 10px; border-bottom: 1px solid #eee; }
-        .num-input { text-align: right; font-weight: bold; font-family: monospace; }
+        /* TABLES */
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        th { background: #e9ecef; text-align: left; padding: 12px; font-size: 0.85em; color: #495057; border-bottom: 2px solid #dee2e6; }
+        td { padding: 10px; border-bottom: 1px solid #f1f3f5; vertical-align: top; }
         
-        /* RESUMEN BARRA INFERIOR */
-        .floating-summary { 
+        /* MARGIN & DISCOUNT CONTROLS */
+        .input-group { display: flex; border: 1px solid #ced4da; border-radius: 5px; overflow: hidden; }
+        .input-group input { border: none; text-align: right; width: 60%; }
+        .input-group select { border: none; background: #e9ecef; width: 40%; text-align: center; border-left: 1px solid #ced4da; font-weight: bold; }
+
+        /* CATALOG */
+        .room-row { display: flex; gap: 5px; margin-bottom: 5px; }
+        .editing-mode { border: 2px solid var(--accent); } /* Borde naranja cuando se edita */
+        
+        /* BOTTOM BAR */
+        .bottom-bar { 
             position: fixed; bottom: 0; left: 0; right: 0; 
-            background: white; border-top: 2px solid var(--secondary);
-            padding: 15px; display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 -4px 10px rgba(0,0,0,0.1); z-index: 100;
+            background: white; border-top: 3px solid var(--secondary); 
+            padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; 
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.1); z-index: 900; 
         }
-        .total-display { font-size: 1.5em; font-weight: bold; color: var(--primary); }
+        .discount-box { display: flex; align-items: center; gap: 10px; background: #fff3cd; padding: 5px 15px; border-radius: 5px; border: 1px solid #ffeeba; }
+        .total-box { text-align: right; }
+        .total-amount { font-size: 1.6em; font-weight: 800; color: var(--primary); }
 
-        /* PDF TEMPLATE Oculto */
+        /* BUTTONS */
+        .btn { padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; color: white; font-weight: bold; transition: 0.2s; }
+        .btn-primary { background: var(--secondary); }
+        .btn-success { background: var(--success); }
+        .btn-warning { background: var(--accent); }
+        .btn-danger { background: var(--danger); }
+        .btn-sm { padding: 5px 10px; font-size: 0.85em; }
+        .btn-block { width: 100%; }
+
+        /* PDF TEMPLATE */
         #pdf-template-wrapper { position: absolute; left: -9999px; }
-        
-        /* Estilos específicos PDF */
-        .pdf-box { width: 800px; padding: 40px; background: white; font-family: 'Helvetica', sans-serif; color: #333; }
+        .pdf-box { width: 800px; background: white; padding: 40px; font-family: 'Helvetica', sans-serif; color: #333; position: relative; }
         .pdf-header { display: flex; justify-content: space-between; border-bottom: 3px solid var(--primary); padding-bottom: 20px; margin-bottom: 20px; }
-        .pdf-item-row { display: flex; border-bottom: 1px solid #eee; padding: 10px 0; }
-        .pdf-img-col { width: 100px; margin-right: 15px; }
-        .pdf-img-col img { width: 100%; height: 70px; object-fit: cover; border-radius: 4px; }
-        .pdf-desc-col { flex-grow: 1; }
-        .pdf-price-col { width: 120px; text-align: right; font-weight: bold; }
-        .pdf-meta { font-size: 0.8em; color: #666; margin-top: 4px; }
+        .pdf-client-box { background: #f8f9fa; border-radius: 6px; padding: 15px; margin-bottom: 25px; border: 1px solid #e9ecef; font-size: 13px; }
+        .pdf-section-head { font-size: 14px; font-weight: bold; color: var(--secondary); border-bottom: 1px solid #ccc; margin-bottom: 10px; padding-bottom: 5px; margin-top: 20px; text-transform: uppercase; }
+        .pdf-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 10px; }
+        .pdf-table th { text-align: left; background: #f1f3f5; padding: 8px; border-bottom: 1px solid #ccc; }
+        .pdf-table td { padding: 10px 8px; border-bottom: 1px solid #eee; }
+        .pdf-col-price { text-align: right; font-weight: bold; width: 15%; }
+        .pdf-footer-totals { margin-top: 30px; margin-left: auto; width: 250px; }
+        .pdf-final-row { display: flex; justify-content: space-between; padding: 10px 0; border-top: 2px solid var(--primary); font-size: 16px; font-weight: bold; color: var(--primary); margin-top: 5px; }
 
     </style>
 </head>
 <body>
 
 <nav class="navbar">
-    <div style="font-size: 1.2em; font-weight: bold;">✈️ Agencia Tarapoto Manager</div>
-    <div class="nav-links">
-        <button onclick="switchView('quote')" id="btn-quote" class="active">📝 Cotizador</button>
-        <button onclick="switchView('catalog')" id="btn-catalog">🗂️ Mi Catálogo (Base de Datos)</button>
+    <div class="nav-brand">🌎 Agencia v9.0</div>
+    <div class="nav-menu">
+        <button class="active" onclick="switchView('quote')" id="btn-quote">📝 Cotizador</button>
+        <button onclick="switchView('dashboard')" id="btn-dashboard">🗃️ Historial</button>
+        <button onclick="switchView('catalog')" id="btn-catalog">⚙️ Catálogo</button>
     </div>
 </nav>
 
 <div class="container">
 
-    <div id="view-catalog" class="view-section">
-        <div class="grid-2">
-            
-            <div class="card">
-                <h3>➕ Nuevo Tour</h3>
-                <form id="formTour" onsubmit="saveTour(event)">
-                    <label>Nombre del Tour</label>
-                    <input type="text" id="cat-tour-name" required placeholder="Ej. Laguna Azul Full Day">
-                    
-                    <div class="grid-2" style="margin-top:10px;">
-                        <div>
-                            <label>Hora Salida</label>
-                            <input type="time" id="cat-tour-out">
-                        </div>
-                        <div>
-                            <label>Hora Retorno</label>
-                            <input type="time" id="cat-tour-ret">
-                        </div>
-                    </div>
-
-                    <div class="grid-2" style="margin-top:10px;">
-                        <div>
-                            <label>Costo Neto (S/)</label>
-                            <input type="number" id="cat-tour-cost" step="0.01" required>
-                        </div>
-                        <div>
-                            <label>Imagen (URL)</label>
-                            <input type="text" id="cat-tour-img" placeholder="https://...">
-                        </div>
-                    </div>
-
-                    <label style="margin-top:10px;">Incluye (separar por comas)</label>
-                    <textarea id="cat-tour-inc" rows="2" placeholder="Traslado, Almuerzo, Guía..."></textarea>
-
-                    <button type="submit" class="btn btn-primary" style="width:100%; margin-top:15px;">Guardar Tour en Catálogo</button>
-                </form>
+    <div id="view-quote" class="view-section active">
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <h3>👤 Datos del Cliente</h3>
+                <button class="btn btn-sm btn-danger" onclick="resetQuote()">Limpiar Formulario</button>
             </div>
-
-            <div class="card">
-                <h3>➕ Nuevo Hotel</h3>
-                <form id="formHotel" onsubmit="saveHotel(event)">
-                    <label>Nombre del Hotel</label>
-                    <input type="text" id="cat-hotel-name" required placeholder="Ej. Hotel Boca Raton">
-                    
-                    <div class="grid-2" style="margin-top:10px;">
-                        <div>
-                            <label>Check-in</label>
-                            <input type="time" id="cat-hotel-in" value="13:00">
-                        </div>
-                        <div>
-                            <label>Check-out</label>
-                            <input type="time" id="cat-hotel-out" value="12:00">
-                        </div>
-                    </div>
-
-                    <div class="grid-2" style="margin-top:10px;">
-                        <div>
-                            <label>Costo x Noche (S/)</label>
-                            <input type="number" id="cat-hotel-cost" step="0.01" required>
-                        </div>
-                        <div>
-                            <label>Imagen (URL)</label>
-                            <input type="text" id="cat-hotel-img" placeholder="https://...">
-                        </div>
-                    </div>
-
-                    <label style="margin-top:10px;">Servicios (Incluye)</label>
-                    <textarea id="cat-hotel-inc" rows="2" placeholder="Desayuno, Piscina, Wifi..."></textarea>
-
-                    <button type="submit" class="btn btn-success" style="width:100%; margin-top:15px;">Guardar Hotel en Catálogo</button>
-                </form>
+            <div class="grid-4">
+                <div><label>Nombre Completo</label><input type="text" id="q-client" placeholder="Ej. Juan Pérez"></div>
+                <div><label>Nro Pax</label><input type="number" id="q-pax" value="2" min="1" onchange="recalcAll()"></div>
+                <div><label>Moneda</label><select id="q-currency" onchange="recalcAll()"><option value="S/">Soles (S/)</option><option value="$">Dólares ($)</option></select></div>
+                <div><label>Estado</label><select id="q-status"><option value="draft">Borrador</option><option value="sold">Vendida</option></select></div>
+            </div>
+            <div class="grid-2" style="margin-top:15px;">
+                <div><label>Fecha Llegada</label><input type="date" id="q-in-date"></div>
+                <div><label>Fecha Retorno</label><input type="date" id="q-out-date"></div>
             </div>
         </div>
 
         <div class="card">
-            <h3>🗂️ Ítems Guardados</h3>
-            <p style="color:#666; font-size:0.9em;">Estos datos se guardan en tu navegador. Puedes usarlos en el cotizador.</p>
-            <div id="catalog-display" class="catalog-list">
-                </div>
+            <div style="display:flex; justify-content:space-between;">
+                <h3>🌴 Tours</h3>
+                <button class="btn btn-sm btn-success" onclick="addTourRow()">+ Agregar Tour</button>
+            </div>
+            <div class="table-wrapper">
+                <table id="tbl-tours">
+                    <thead><tr><th width="40%">Tour</th><th width="15%">Costo (Editable)</th><th width="20%">Ganancia</th><th width="15%">P. Venta</th><th width="10%"></th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <div style="display:flex; justify-content:space-between;">
+                <h3>🏨 Hoteles</h3>
+                <button class="btn btn-sm btn-success" onclick="addHotelRow()">+ Agregar Hotel</button>
+            </div>
+            <div class="table-wrapper">
+                <table id="tbl-hotels">
+                    <thead><tr><th width="40%">Hotel / Habitación</th><th width="10%">Noches</th><th width="15%">Costo Total</th><th width="20%">Ganancia</th><th width="15%">Subtotal</th><th></th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
-    <div id="view-quote" class="view-section active" style="padding-bottom: 80px;">
-        
+    <div id="view-dashboard" class="view-section">
         <div class="card">
-            <div class="grid-3">
-                <div>
-                    <label>Cliente</label>
-                    <input type="text" id="q-client" placeholder="Nombre del cliente">
+            <h3>🗃️ Historial de Cotizaciones</h3>
+            <div class="table-wrapper">
+                <table id="tbl-history">
+                    <thead><tr><th>Fecha</th><th>Cliente</th><th>Total</th><th>Acción</th></tr></thead>
+                    <tbody id="history-list"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-catalog" class="view-section">
+        <div class="grid-2">
+            <div class="card" id="cat-card">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3 id="cat-title">➕ Agregar al Catálogo</h3>
+                    <button id="btn-cancel-edit" class="btn btn-sm btn-danger" style="display:none;" onclick="resetCatForm()">Cancelar Edición</button>
                 </div>
-                <div>
-                    <label>Pasajeros (Pax)</label>
-                    <input type="number" id="q-pax" value="2" min="1" onchange="recalcAll()">
-                </div>
-                <div>
-                    <label>Moneda</label>
-                    <select id="q-currency" onchange="recalcAll()">
-                        <option value="S/">Soles (S/)</option>
-                        <option value="$">Dólares ($)</option>
+                
+                <form onsubmit="saveCatalogItem(event)">
+                    <input type="hidden" id="cat-id"> <label>Tipo</label>
+                    <select id="cat-type" onchange="toggleCatFields()">
+                        <option value="tour">Tour</option>
+                        <option value="hotel">Hotel</option>
                     </select>
-                </div>
-            </div>
-            <div class="grid-2" style="margin-top:15px;">
-                <div>
-                    <label>Llegada (Fecha/Hora)</label>
-                    <div style="display:flex; gap:5px;">
-                        <input type="date" id="q-date-in" onchange="calcDuration()">
-                        <input type="time" id="q-time-in">
-                    </div>
-                </div>
-                <div>
-                    <label>Retorno (Fecha/Hora)</label>
-                    <div style="display:flex; gap:5px;">
-                        <input type="date" id="q-date-out" onchange="calcDuration()">
-                        <input type="time" id="q-time-out">
-                    </div>
-                </div>
-            </div>
-            <div id="duration-badge" style="margin-top:10px; font-weight:bold; color:var(--secondary);"></div>
-        </div>
+                    
+                    <label style="margin-top:10px;">Nombre</label>
+                    <input type="text" id="cat-name" required placeholder="Nombre del Tour o Hotel">
 
-        <div class="card">
-            <div style="display:flex; justify-content:space-between;">
-                <h3>🌴 Tours Seleccionados</h3>
-                <button class="btn btn-primary" onclick="addTourRow()">+ Agregar Línea</button>
-            </div>
-            <table id="table-tours">
-                <thead>
-                    <tr>
-                        <th width="35%">Tour (Seleccionar Catálogo)</th>
-                        <th width="15%">Costo Neto</th>
-                        <th width="15%">Margen %</th>
-                        <th width="15%">P. Unitario</th>
-                        <th width="15%">Total</th>
-                        <th width="5%"></th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
+                    <div id="fields-tour">
+                        <label style="margin-top:10px;">Costo Base (Por Pax)</label>
+                        <input type="number" id="cat-cost" step="0.01">
+                    </div>
 
-        <div class="card">
-            <div style="display:flex; justify-content:space-between;">
-                <h3>🏨 Alojamiento</h3>
-                <button class="btn btn-success" onclick="addHotelRow()">+ Agregar Línea</button>
+                    <div id="fields-hotel" style="display:none; margin-top:10px; background:#f1f3f5; padding:10px; border-radius:5px;">
+                        <label>Tipos de Habitación</label>
+                        <div id="room-list-container"></div>
+                        <button type="button" class="btn btn-sm btn-primary" onclick="addRoomInput()">+ Tipo Habitación</button>
+                    </div>
+
+                    <label style="margin-top:10px;">Descripción</label>
+                    <textarea id="cat-desc" rows="2"></textarea>
+                    
+                    <button id="btn-save-cat" class="btn btn-success btn-block" style="margin-top:15px;">Guardar Ítem</button>
+                </form>
             </div>
-            <table id="table-hotels">
-                <thead>
-                    <tr>
-                        <th width="35%">Hotel (Seleccionar Catálogo)</th>
-                        <th width="10%">Noches</th>
-                        <th width="15%">Costo Total</th>
-                        <th width="15%">Margen %</th>
-                        <th width="15%">P. Venta</th>
-                        <th width="5%"></th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+            
+            <div class="card">
+                <h3>Inventario</h3>
+                <div id="catalog-list"></div>
+            </div>
         </div>
     </div>
 
 </div>
 
-<div class="floating-summary" id="summary-bar">
-    <div style="font-size:0.9em;">
-        Costo: <span id="sum-cost">0.00</span> | 
-        Ganancia: <span style="color:var(--success); font-weight:bold;" id="sum-profit">0.00</span>
+<div class="bottom-bar" id="quote-bar">
+    <div style="display:flex; gap:20px; align-items:center;">
+        <div>
+            <div style="font-size:0.8em; color:#666;">Utilidad</div>
+            <div style="font-weight:bold; color:var(--success)" id="sum-profit">0.00</div>
+        </div>
+        <div class="discount-box">
+            <label style="margin:0; font-size:0.8em;">Descuento Global:</label>
+            <input type="number" id="q-discount-val" value="0" style="width:70px; padding:5px; text-align:right;" oninput="recalcAll()">
+            <select id="q-discount-type" style="width:50px; padding:5px;" onchange="recalcAll()">
+                <option value="%">%</option>
+                <option value="$">$</option>
+            </select>
+        </div>
     </div>
+    
     <div style="display:flex; align-items:center; gap:20px;">
-        <div class="total-display">Total Venta: <span id="sum-total">0.00</span></div>
-        <button class="btn btn-primary" onclick="generatePDF()">📄 Descargar PDF</button>
+        <div class="total-box">
+            <div style="font-size:0.8em; color:#666;">TOTAL A PAGAR</div>
+            <div class="total-amount" id="sum-total">0.00</div>
+        </div>
+        <button class="btn btn-primary" onclick="saveQuoteLocally()">Guardar</button>
+        <button class="btn btn-success" onclick="generatePDF()">📄 PDF</button>
     </div>
 </div>
 
@@ -274,398 +233,400 @@
     <div id="pdf-content" class="pdf-box">
         <div class="pdf-header">
             <div>
-                <h1 style="color: var(--primary); margin:0;">COTIZACIÓN</h1>
-                <p style="margin:5px 0; color:#666;">Tarapoto, San Martín, Perú</p>
+                <h1 style="margin:0; color:var(--primary); font-size:24px;">COTIZACIÓN</h1>
+                <div style="font-size:12px; color:#666;">Agencia de Viajes Tarapoto</div>
             </div>
             <div style="text-align:right;">
-                <div id="pdf-date" style="font-weight:bold;"></div>
-                <div id="pdf-client" style="font-size:1.2em; margin-top:5px;"></div>
+                <div style="font-size:12px;">Fecha</div>
+                <strong id="pdf-date"></strong>
             </div>
         </div>
 
-        <div style="background:#f8f9fa; padding:15px; border-radius:6px; margin-bottom:20px; display:flex; justify-content:space-between;">
-            <div>
-                <strong>Llegada:</strong> <span id="pdf-in"></span><br>
-                <strong>Salida:</strong> <span id="pdf-out"></span>
+        <div class="pdf-client-box">
+            <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                <span><strong>CLIENTE:</strong> <span id="pdf-client-name"></span></span>
+                <span><strong>PAX:</strong> <span id="pdf-pax"></span></span>
             </div>
-            <div style="text-align:right;">
-                <strong>Pasajeros:</strong> <span id="pdf-pax"></span><br>
-                <span id="pdf-dur" class="tag"></span>
+            <div style="display:flex; justify-content:space-between;">
+                <span><strong>LLEGADA:</strong> <span id="pdf-in"></span></span>
+                <span><strong>RETORNO:</strong> <span id="pdf-out"></span></span>
             </div>
         </div>
 
-        <div id="pdf-tours-container">
-            <h3 style="border-bottom:2px solid #eee; padding-bottom:5px;">ACTIVIDADES</h3>
-            <div id="pdf-tours-list"></div>
+        <div id="pdf-tours-section">
+            <div class="pdf-section-head">Actividades</div>
+            <table class="pdf-table">
+                <thead><tr><th>Actividad</th><th>Detalle</th><th class="pdf-col-price">Precio</th></tr></thead>
+                <tbody id="pdf-tours-body"></tbody>
+            </table>
         </div>
 
-        <div id="pdf-hotels-container" style="margin-top:30px;">
-            <h3 style="border-bottom:2px solid #eee; padding-bottom:5px;">ALOJAMIENTO</h3>
-            <div id="pdf-hotels-list"></div>
+        <div id="pdf-hotels-section" style="margin-top:20px;">
+            <div class="pdf-section-head">Alojamiento</div>
+            <table class="pdf-table">
+                <thead><tr><th>Hotel</th><th>Habitación</th><th style="text-align:center">Noches</th><th class="pdf-col-price">Total</th></tr></thead>
+                <tbody id="pdf-hotels-body"></tbody>
+            </table>
         </div>
 
-        <div style="margin-top:40px; text-align:right;">
-            <div style="font-size:1.5em; font-weight:bold; color:var(--primary); background:#eee; display:inline-block; padding:10px 20px; border-radius:8px;">
-                TOTAL: <span id="pdf-final-total"></span>
+        <div class="pdf-footer-totals">
+            <div style="display:flex; justify-content:space-between; font-size:13px; padding:5px 0;">
+                <span>Subtotal:</span><span id="pdf-subtotal"></span>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:13px; padding:5px 0; color:var(--danger);">
+                <span>Descuento:</span><span id="pdf-discount"></span>
+            </div>
+            <div class="pdf-final-row">
+                <span>TOTAL FINAL:</span><span id="pdf-final"></span>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // === 1. GESTIÓN DE DATOS (CATÁLOGO) ===
-    
-    // Estructura inicial si está vacío
-    const initialDB = {
-        tours: [],
-        hotels: []
-    };
+    // === BASE DE DATOS ===
+    const DB_KEY = 'erp_tpt_v9';
+    let db = JSON.parse(localStorage.getItem(DB_KEY)) || { tours: [], hotels: [], quotes: [] };
+    function saveDB() { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
 
-    // Cargar DB
-    let db = JSON.parse(localStorage.getItem('tarapoto_db')) || initialDB;
-
-    function saveDB() {
-        localStorage.setItem('tarapoto_db', JSON.stringify(db));
-        renderCatalogList();
-        // Nota: Los selectores se actualizarán al recargar la página o al llamar updateSelects()
-        updateSelectsInQuote();
+    // === GESTIÓN DE CATÁLOGO (CON EDICIÓN) ===
+    function toggleCatFields() {
+        const t = document.getElementById('cat-type').value;
+        document.getElementById('fields-tour').style.display = t==='tour'?'block':'none';
+        document.getElementById('fields-hotel').style.display = t==='hotel'?'block':'none';
     }
 
-    function saveTour(e) {
+    function addRoomInput(name='', cost='') {
+        const div = document.createElement('div');
+        div.className = 'room-row';
+        div.innerHTML = `<input type="text" placeholder="Tipo (ej. Matrimonial)" class="r-name" value="${name}" required><input type="number" placeholder="Costo" class="r-cost" value="${cost}" required><button type="button" class="btn btn-sm btn-danger" onclick="this.parentElement.remove()">X</button>`;
+        document.getElementById('room-list-container').appendChild(div);
+    }
+
+    function saveCatalogItem(e) {
         e.preventDefault();
-        const tour = {
-            id: Date.now(),
-            name: document.getElementById('cat-tour-name').value,
-            out: document.getElementById('cat-tour-out').value,
-            ret: document.getElementById('cat-tour-ret').value,
-            cost: parseFloat(document.getElementById('cat-tour-cost').value),
-            img: document.getElementById('cat-tour-img').value,
-            inc: document.getElementById('cat-tour-inc').value
-        };
-        db.tours.push(tour);
-        saveDB();
-        e.target.reset();
-        alert('Tour guardado en catálogo');
-    }
-
-    function saveHotel(e) {
-        e.preventDefault();
-        const hotel = {
-            id: Date.now(),
-            name: document.getElementById('cat-hotel-name').value,
-            checkIn: document.getElementById('cat-hotel-in').value,
-            checkOut: document.getElementById('cat-hotel-out').value,
-            cost: parseFloat(document.getElementById('cat-hotel-cost').value),
-            img: document.getElementById('cat-hotel-img').value,
-            inc: document.getElementById('cat-hotel-inc').value
-        };
-        db.hotels.push(hotel);
-        saveDB();
-        e.target.reset();
-        alert('Hotel guardado en catálogo');
-    }
-
-    function deleteItem(type, id) {
-        if(!confirm('¿Borrar este ítem?')) return;
-        if(type === 'tour') db.tours = db.tours.filter(i => i.id !== id);
-        if(type === 'hotel') db.hotels = db.hotels.filter(i => i.id !== id);
-        saveDB();
-    }
-
-    function renderCatalogList() {
-        const container = document.getElementById('catalog-display');
-        container.innerHTML = '';
-
-        // Render Tours
-        db.tours.forEach(t => {
-            container.innerHTML += `
-                <div class="catalog-item">
-                    <span class="tag" style="position:absolute; top:10px; right:10px;">Tour</span>
-                    ${t.img ? `<img src="${t.img}" alt="img">` : '<div style="height:120px; background:#eee; display:flex; align-items:center; justify-content:center;">Sin Imagen</div>'}
-                    <h4>${t.name}</h4>
-                    <small>🕒 ${t.out} - ${t.ret}</small><br>
-                    <strong>Costo: S/ ${t.cost.toFixed(2)}</strong>
-                    <button class="btn btn-danger" style="margin-top:10px; width:100%;" onclick="deleteItem('tour', ${t.id})">Eliminar</button>
-                </div>
-            `;
-        });
-
-        // Render Hotels
-        db.hotels.forEach(h => {
-            container.innerHTML += `
-                <div class="catalog-item">
-                    <span class="tag" style="background:var(--secondary); color:white; position:absolute; top:10px; right:10px;">Hotel</span>
-                    ${h.img ? `<img src="${h.img}" alt="img">` : '<div style="height:120px; background:#eee; display:flex; align-items:center; justify-content:center;">Sin Imagen</div>'}
-                    <h4>${h.name}</h4>
-                    <small>🏨 In: ${h.checkIn} / Out: ${h.checkOut}</small><br>
-                    <strong>Costo: S/ ${h.cost.toFixed(2)}</strong>
-                    <button class="btn btn-danger" style="margin-top:10px; width:100%;" onclick="deleteItem('hotel', ${h.id})">Eliminar</button>
-                </div>
-            `;
-        });
-    }
-
-    // === 2. LÓGICA DEL COTIZADOR ===
-
-    function getTourOptions() {
-        let opts = `<option value="">-- Seleccionar --</option>`;
-        db.tours.forEach(t => {
-            opts += `<option value="${t.id}" data-cost="${t.cost}">${t.name}</option>`;
-        });
-        return opts;
-    }
-
-    function getHotelOptions() {
-        let opts = `<option value="">-- Seleccionar --</option>`;
-        db.hotels.forEach(h => {
-            opts += `<option value="${h.id}" data-cost="${h.cost}">${h.name}</option>`;
-        });
-        return opts;
-    }
-
-    function addTourRow() {
-        const tbody = document.querySelector('#table-tours tbody');
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>
-                <select class="item-select" onchange="fillRowCost(this, 'tour')">${getTourOptions()}</select>
-                <input type="hidden" class="custom-name"> </td>
-            <td><input type="number" class="num-input cost" value="0" oninput="recalcRow(this, 'tour')"></td>
-            <td><input type="number" class="num-input margin" value="20" oninput="recalcRow(this, 'tour')"></td>
-            <td><input type="number" class="num-input price" readonly></td>
-            <td class="row-total" style="text-align:right; font-weight:bold;">0.00</td>
-            <td><button class="btn btn-danger" onclick="removeRow(this)">X</button></td>
-        `;
-        tbody.appendChild(tr);
-    }
-
-    function addHotelRow() {
-        const tbody = document.querySelector('#table-hotels tbody');
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>
-                <select class="item-select" onchange="fillRowCost(this, 'hotel')">${getHotelOptions()}</select>
-            </td>
-            <td><input type="number" class="num-input nights" value="1" min="1" oninput="recalcRow(this, 'hotel')"></td>
-            <td><input type="number" class="num-input cost" value="0" oninput="recalcRow(this, 'hotel')"></td>
-            <td><input type="number" class="num-input margin" value="20" oninput="recalcRow(this, 'hotel')"></td>
-            <td class="row-total" style="text-align:right; font-weight:bold;">0.00</td>
-            <td><button class="btn btn-danger" onclick="removeRow(this)">X</button></td>
-        `;
-        tbody.appendChild(tr);
-    }
-
-    function fillRowCost(select, type) {
-        const tr = select.closest('tr');
-        const option = select.options[select.selectedIndex];
-        const cost = option.getAttribute('data-cost');
+        const id = document.getElementById('cat-id').value; // ID oculto
+        const type = document.getElementById('cat-type').value;
         
-        if(cost) {
-            tr.querySelector('.cost').value = cost;
-            recalcRow(tr.querySelector('.cost'), type);
-        }
-    }
+        // Crear objeto item
+        let item = {
+            id: id ? parseInt(id) : Date.now(), // Si hay ID usamos ese, si no, creamos uno nuevo
+            type,
+            name: document.getElementById('cat-name').value,
+            desc: document.getElementById('cat-desc').value
+        };
 
-    function recalcRow(el, type) {
-        const tr = el.closest('tr');
-        const cost = parseFloat(tr.querySelector('.cost').value) || 0;
-        const margin = parseFloat(tr.querySelector('.margin').value) || 0;
-        const pax = parseFloat(document.getElementById('q-pax').value) || 1;
-        
-        const unitPrice = cost + (cost * (margin/100));
-        let total = 0;
-
-        if(type === 'tour') {
-            tr.querySelector('.price').value = unitPrice.toFixed(2);
-            total = unitPrice * pax;
+        if(type==='tour'){
+            item.cost = parseFloat(document.getElementById('cat-cost').value)||0;
         } else {
-            const nights = parseFloat(tr.querySelector('.nights').value) || 1;
-            total = unitPrice; // En hoteles el costo ingresado suele ser total estadía o noche * noches.
-            // Para simplificar, asumimos el flujo del usuario: El input "Costo" es el costo TOTAL del alojamiento
-            // Si quieres costo por noche: unitPrice * nights. 
-            // Vamos a hacerlo Costo Por Noche * Noches + Margen:
-            
-            // Lógica corregida para hotel: Costo = Costo UNITARIO por noche
-            const totalCostProject = cost * nights;
-            const totalPriceProject = totalCostProject + (totalCostProject * (margin/100));
-            
-            tr.querySelector('.row-total').innerText = totalPriceProject.toFixed(2);
-            tr.querySelector('.price').value = totalPriceProject.toFixed(2);
-            recalcTotal();
-            return;
+            item.rooms=[];
+            document.querySelectorAll('#room-list-container .room-row').forEach(row=>{
+                item.rooms.push({name:row.querySelector('.r-name').value, cost:parseFloat(row.querySelector('.r-cost').value)||0});
+            });
         }
 
-        tr.querySelector('.row-total').innerText = total.toFixed(2);
-        recalcTotal();
+        const list = type==='tour' ? db.tours : db.hotels;
+        
+        if(id) {
+            // MODO EDICIÓN: Buscar y reemplazar
+            const idx = list.findIndex(x => x.id == id);
+            if(idx !== -1) list[idx] = item;
+            alert('Ítem actualizado correctamente');
+        } else {
+            // MODO CREACIÓN: Agregar nuevo
+            list.push(item);
+            alert('Ítem creado correctamente');
+        }
+        
+        saveDB(); 
+        resetCatForm(); 
+        renderCatalog(); 
+        updateSelects();
     }
 
-    function removeRow(btn) { btn.closest('tr').remove(); recalcTotal(); }
+    function editItem(type, id) {
+        const list = type==='tour' ? db.tours : db.hotels;
+        const item = list.find(x => x.id == id);
+        if(!item) return;
 
-    function recalcTotal() {
-        let totalCost = 0;
-        let totalSale = 0;
-        const pax = parseFloat(document.getElementById('q-pax').value) || 1;
+        // Cargar datos en formulario
+        document.getElementById('cat-id').value = item.id;
+        document.getElementById('cat-type').value = item.type;
+        document.getElementById('cat-name').value = item.name;
+        document.getElementById('cat-desc').value = item.desc;
+        
+        toggleCatFields(); // Asegurar que se ve el campo correcto
 
-        // Sumar Tours
-        document.querySelectorAll('#table-tours tbody tr').forEach(tr => {
-            const cost = parseFloat(tr.querySelector('.cost').value) || 0;
-            const sale = parseFloat(tr.querySelector('.row-total').innerText) || 0;
-            totalCost += (cost * pax);
-            totalSale += sale;
-        });
+        if(type==='tour') {
+            document.getElementById('cat-cost').value = item.cost;
+        } else {
+            document.getElementById('room-list-container').innerHTML = '';
+            if(item.rooms) item.rooms.forEach(r => addRoomInput(r.name, r.cost));
+        }
 
-        // Sumar Hoteles
-        document.querySelectorAll('#table-hotels tbody tr').forEach(tr => {
-            const cost = parseFloat(tr.querySelector('.cost').value) || 0; // Costo noche
-            const nights = parseFloat(tr.querySelector('.nights').value) || 1;
-            const sale = parseFloat(tr.querySelector('.row-total').innerText) || 0;
-            totalCost += (cost * nights);
-            totalSale += sale;
-        });
-
-        const profit = totalSale - totalCost;
-        const curr = document.getElementById('q-currency').value;
-
-        document.getElementById('sum-cost').innerText = curr + ' ' + totalCost.toFixed(2);
-        document.getElementById('sum-profit').innerText = curr + ' ' + profit.toFixed(2);
-        document.getElementById('sum-total').innerText = curr + ' ' + totalSale.toFixed(2);
+        // Cambiar UI para modo edición
+        document.getElementById('cat-card').classList.add('editing-mode');
+        document.getElementById('cat-title').innerText = "✏️ Editando: " + item.name;
+        document.getElementById('btn-save-cat').innerText = "Actualizar Ítem";
+        document.getElementById('btn-save-cat').classList.remove('btn-success');
+        document.getElementById('btn-save-cat').classList.add('btn-warning');
+        document.getElementById('btn-cancel-edit').style.display = 'block';
+        
+        // Scroll arriba
+        window.scrollTo(0, 0);
     }
 
+    function resetCatForm() {
+        document.querySelector('form').reset();
+        document.getElementById('cat-id').value = '';
+        document.getElementById('room-list-container').innerHTML = '';
+        
+        // Restaurar UI
+        document.getElementById('cat-card').classList.remove('editing-mode');
+        document.getElementById('cat-title').innerText = "➕ Agregar al Catálogo";
+        document.getElementById('btn-save-cat').innerText = "Guardar Ítem";
+        document.getElementById('btn-save-cat').classList.add('btn-success');
+        document.getElementById('btn-save-cat').classList.remove('btn-warning');
+        document.getElementById('btn-cancel-edit').style.display = 'none';
+    }
+
+    function renderCatalog() {
+        const div = document.getElementById('catalog-list'); div.innerHTML='';
+        const list = [...db.tours, ...db.hotels];
+        list.forEach(i => {
+            let info = i.type==='tour' ? `Costo: ${i.cost}` : `Habitaciones: ${i.rooms.length}`;
+            div.innerHTML += `
+            <div style="border-bottom:1px solid #eee; padding:8px; display:flex; justify-content:space-between; align-items:center;">
+                <div><strong>${i.name}</strong> <small>(${i.type}) - ${info}</small></div>
+                <div>
+                    <button class="btn btn-sm btn-warning" onclick="editItem('${i.type}',${i.id})">✏️</button>
+                    <button class="btn btn-sm btn-danger" onclick="delItem('${i.type}',${i.id})">🗑️</button>
+                </div>
+            </div>`;
+        });
+    }
+    
+    function delItem(type, id){
+        if(!confirm('Borrar?'))return;
+        if(type==='tour') db.tours=db.tours.filter(x=>x.id!==id); else db.hotels=db.hotels.filter(x=>x.id!==id);
+        saveDB(); renderCatalog(); updateSelects();
+    }
+
+    // === COTIZADOR ===
+    function getTourOpt() {
+        let h='<option value="">-- Tour --</option>';
+        db.tours.forEach(t=>h+=`<option value="${t.id}" data-cost="${t.cost}">${t.name}</option>`);
+        return h;
+    }
+    function getHotelOpt() {
+        let h='<option value="">-- Hotel --</option>';
+        db.hotels.forEach(t=>h+=`<option value="${t.id}">${t.name}</option>`);
+        return h;
+    }
+    function updateSelects(){
+        document.querySelectorAll('.item-select').forEach(s=>{ let v=s.value; s.innerHTML=getTourOpt(); s.value=v; });
+        document.querySelectorAll('.hotel-select').forEach(s=>{ let v=s.value; s.innerHTML=getHotelOpt(); s.value=v; });
+    }
+
+    function addTourRow(d=null) {
+        const tr=document.createElement('tr');
+        // NOTA: Input cost sin 'readonly' para permitir edición manual
+        tr.innerHTML=`<td><select class="item-select" onchange="fillT(this)">${getTourOpt()}</select></td><td><input type="number" class="cost" value="0" oninput="calc(this)"></td><td><div class="input-group"><input type="number" class="mv" value="20" oninput="calc(this)"><select class="mt" onchange="calc(this)"><option value="%">%</option><option value="$">$</option></select></div></td><td class="row-sub">0.00</td><td><button class="btn btn-sm btn-danger" onclick="delRow(this)">X</button></td>`;
+        document.querySelector('#tbl-tours tbody').appendChild(tr);
+        if(d){ tr.querySelector('select').value=d.id; tr.querySelector('.cost').value=d.cost; tr.querySelector('.mv').value=d.mv; tr.querySelector('.mt').value=d.mt; calc(tr.querySelector('select')); }
+    }
+    function fillT(e){ const o=e.options[e.selectedIndex]; if(o.value) e.closest('tr').querySelector('.cost').value=o.dataset.cost; calc(e); }
+
+    function addHotelRow(d=null) {
+        const tr=document.createElement('tr');
+        tr.innerHTML=`<td><select class="hotel-select" onchange="loadRooms(this)">${getHotelOpt()}</select><select class="room-select" style="margin-top:5px; display:none;" onchange="fillH(this)"></select></td><td><input type="number" class="qty" value="1" oninput="calc(this)"></td><td><input type="number" class="cost" value="0" oninput="calc(this)"></td><td><div class="input-group"><input type="number" class="mv" value="20" oninput="calc(this)"><select class="mt" onchange="calc(this)"><option value="%">%</option><option value="$">$</option></select></div></td><td class="row-sub">0.00</td><td><button class="btn btn-sm btn-danger" onclick="delRow(this)">X</button></td>`;
+        document.querySelector('#tbl-hotels tbody').appendChild(tr);
+        if(d){ const hs=tr.querySelector('.hotel-select'); hs.value=d.id; loadRooms(hs, d.rid); tr.querySelector('.qty').value=d.q; tr.querySelector('.cost').value=d.cost; tr.querySelector('.mv').value=d.mv; tr.querySelector('.mt').value=d.mt; calc(hs); }
+    }
+    
+    function loadRooms(sel, savedRoom=null) {
+        const h = db.hotels.find(x=>x.id==sel.value);
+        const rs = sel.closest('tr').querySelector('.room-select');
+        rs.innerHTML='<option value="">-- Habitación --</option>';
+        if(h && h.rooms){
+            h.rooms.forEach(r=>rs.innerHTML+=`<option value="${r.name}" data-cost="${r.cost}">${r.name}</option>`);
+            rs.style.display='block';
+            if(savedRoom) rs.value=savedRoom;
+        } else rs.style.display='none';
+    }
+    function fillH(e){ const o=e.options[e.selectedIndex]; if(o.value) e.closest('tr').querySelector('.cost').value=o.dataset.cost; calc(e); }
+
+    // CALCULOS
+    function calc(e) {
+        const tr=e.closest('tr');
+        // Obtenemos el costo directamente del input. Como no tiene readonly, el usuario puede cambiarlo
+        // y este valor prevalece sobre el catálogo.
+        const cost=parseFloat(tr.querySelector('.cost').value)||0;
+        const mv=parseFloat(tr.querySelector('.mv').value)||0;
+        const mt=tr.querySelector('.mt').value;
+        const pax=parseFloat(document.getElementById('q-pax').value)||1;
+        
+        let profit = mt==='%' ? cost*(mv/100) : mv;
+        let unit = cost+profit;
+        let sub = 0;
+
+        if(tr.closest('table').id.includes('tour')) sub = unit * pax; 
+        else sub = unit * (parseFloat(tr.querySelector('.qty').value)||1);
+
+        tr.querySelector('.row-sub').innerText=sub.toFixed(2);
+        recalcAll();
+    }
+    
     function recalcAll() {
-        document.querySelectorAll('tbody tr').forEach(tr => {
-            const el = tr.querySelector('.cost');
-            if(el) recalcRow(el, tr.closest('table').id.includes('tour') ? 'tour' : 'hotel');
-        });
-    }
-
-    function calcDuration() {
-        const d1 = new Date(document.getElementById('q-date-in').value);
-        const d2 = new Date(document.getElementById('q-date-out').value);
-        if(d1 && d2 && d2 > d1) {
-            const diff = Math.ceil((d2-d1)/(1000*60*60*24));
-            document.getElementById('duration-badge').innerText = `${diff + 1} Días / ${diff} Noches`;
-        }
-    }
-
-    // === 3. UTILIDADES Y PDF ===
-
-    function switchView(view) {
-        document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-        document.getElementById('view-'+view).classList.add('active');
+        let subtotal = 0;
+        let costTotal = 0;
+        const pax = parseFloat(document.getElementById('q-pax').value)||1;
         
-        document.querySelectorAll('.nav-links button').forEach(el => el.classList.remove('active'));
-        document.getElementById('btn-'+view).classList.add('active');
+        // Al recalcular todo (ej. al cambiar Pax), usamos los valores actuales de los inputs.
+        // NO reseteamos al precio de catálogo. Esto permite la flexibilidad pedida.
         
-        if(view === 'quote') updateSelectsInQuote(); // Refrescar listas al volver
+        document.querySelectorAll('#tbl-tours tbody tr').forEach(tr=>{
+            // Recalcular fila por si cambió el pax
+            const cost = parseFloat(tr.querySelector('.cost').value)||0;
+            const mv = parseFloat(tr.querySelector('.mv').value)||0;
+            const mt = tr.querySelector('.mt').value;
+            let profit = mt==='%' ? cost*(mv/100) : mv;
+            let unit = cost+profit;
+            let rowSub = unit * pax;
+            
+            tr.querySelector('.row-sub').innerText = rowSub.toFixed(2);
+            
+            subtotal += rowSub;
+            costTotal += cost * pax;
+        });
+
+        document.querySelectorAll('#tbl-hotels tbody tr').forEach(tr=>{
+            subtotal += parseFloat(tr.querySelector('.row-sub').innerText)||0;
+            costTotal += (parseFloat(tr.querySelector('.cost').value)||0)*(parseFloat(tr.querySelector('.qty').value)||1);
+        });
+
+        const discVal = parseFloat(document.getElementById('q-discount-val').value)||0;
+        const discType = document.getElementById('q-discount-type').value;
+        let discount = discType==='%' ? subtotal*(discVal/100) : discVal;
+        
+        let finalTotal = subtotal - discount;
+        let profit = finalTotal - costTotal;
+
+        const cur = document.getElementById('q-currency').value;
+        document.getElementById('sum-profit').innerText = cur+' '+profit.toFixed(2);
+        document.getElementById('sum-total').innerText = cur+' '+finalTotal.toFixed(2);
+    }
+    
+    function delRow(b){ b.closest('tr').remove(); recalcAll(); }
+
+    // GUARDAR
+    function saveQuoteLocally() {
+        const q = {
+            id: Date.now(),
+            date: new Date().toLocaleDateString(),
+            client: document.getElementById('q-client').value,
+            total: document.getElementById('sum-total').innerText,
+            data: {
+                pax: document.getElementById('q-pax').value,
+                cur: document.getElementById('q-currency').value,
+                dates: [document.getElementById('q-in-date').value, document.getElementById('q-out-date').value],
+                discVal: document.getElementById('q-discount-val').value,
+                discType: document.getElementById('q-discount-type').value,
+                tours: [], hotels: []
+            }
+        };
+        document.querySelectorAll('#tbl-tours tbody tr').forEach(tr=>q.data.tours.push({
+            id:tr.querySelector('select').value, cost:tr.querySelector('.cost').value, mv:tr.querySelector('.mv').value, mt:tr.querySelector('.mt').value
+        }));
+        document.querySelectorAll('#tbl-hotels tbody tr').forEach(tr=>q.data.hotels.push({
+            id:tr.querySelector('.hotel-select').value, rid:tr.querySelector('.room-select').value, q:tr.querySelector('.qty').value, cost:tr.querySelector('.cost').value, mv:tr.querySelector('.mv').value, mt:tr.querySelector('.mt').value
+        }));
+        db.quotes.push(q); saveDB(); renderHistory(); alert('Guardado');
     }
 
-    function updateSelectsInQuote() {
-        // Actualiza los selects existentes manteniendo el valor si es posible
-        document.querySelectorAll('#table-tours select').forEach(sel => {
-            const val = sel.value;
-            sel.innerHTML = getTourOptions();
-            sel.value = val;
+    function renderHistory() {
+        const tb = document.getElementById('history-list'); tb.innerHTML='';
+        db.quotes.slice().reverse().forEach(q => {
+            tb.innerHTML+=`<tr><td>${q.date}</td><td>${q.client}</td><td>${q.total}</td><td><button class="btn btn-sm btn-primary" onclick="loadQuote(${q.id})">Cargar</button></td></tr>`;
         });
-        document.querySelectorAll('#table-hotels select').forEach(sel => {
-            const val = sel.value;
-            sel.innerHTML = getHotelOptions();
-            sel.value = val;
-        });
+    }
+
+    function loadQuote(id) {
+        const q=db.quotes.find(x=>x.id===id); if(!q)return;
+        document.getElementById('q-client').value=q.client;
+        document.getElementById('q-pax').value=q.data.pax;
+        document.getElementById('q-currency').value=q.data.cur;
+        document.getElementById('q-in-date').value=q.data.dates[0];
+        document.getElementById('q-out-date').value=q.data.dates[1];
+        document.getElementById('q-discount-val').value=q.data.discVal||0;
+        document.getElementById('q-discount-type').value=q.data.discType||'%';
+
+        document.querySelector('#tbl-tours tbody').innerHTML='';
+        q.data.tours.forEach(t=>addTourRow(t));
+        document.querySelector('#tbl-hotels tbody').innerHTML='';
+        q.data.hotels.forEach(h=>addHotelRow(h));
+        
+        recalcAll(); switchView('quote');
     }
 
     function generatePDF() {
-        const curr = document.getElementById('q-currency').value;
+        const cur = document.getElementById('q-currency').value;
         const pax = document.getElementById('q-pax').value;
 
-        // Header Data
         document.getElementById('pdf-date').innerText = new Date().toLocaleDateString();
-        document.getElementById('pdf-client').innerText = document.getElementById('q-client').value || 'Cliente';
-        document.getElementById('pdf-in').innerText = document.getElementById('q-date-in').value + ' ' + document.getElementById('q-time-in').value;
-        document.getElementById('pdf-out').innerText = document.getElementById('q-date-out').value + ' ' + document.getElementById('q-time-out').value;
+        document.getElementById('pdf-client-name').innerText = document.getElementById('q-client').value;
         document.getElementById('pdf-pax').innerText = pax;
-        document.getElementById('pdf-dur').innerText = document.getElementById('duration-badge').innerText;
+        document.getElementById('pdf-in').innerText = document.getElementById('q-in-date').value;
+        document.getElementById('pdf-out').innerText = document.getElementById('q-out-date').value;
 
-        // Generar Lista Tours PDF
-        const pdfTours = document.getElementById('pdf-tours-list');
-        pdfTours.innerHTML = '';
-        document.querySelectorAll('#table-tours tbody tr').forEach(tr => {
-            const select = tr.querySelector('select');
-            const tourId = parseInt(select.value);
-            const tourData = db.tours.find(t => t.id === tourId);
-            const price = tr.querySelector('.price').value; // Precio unitario de venta
-
-            if(tourData) {
-                pdfTours.innerHTML += `
-                <div class="pdf-item-row">
-                    <div class="pdf-img-col">
-                        ${tourData.img ? `<img src="${tourData.img}">` : ''}
-                    </div>
-                    <div class="pdf-desc-col">
-                        <strong>${tourData.name}</strong><br>
-                        <div class="pdf-meta">
-                            🕒 ${tourData.out} - ${tourData.ret}<br>
-                            ✨ Incluye: ${tourData.inc}
-                        </div>
-                    </div>
-                    <div class="pdf-price-col">
-                        ${curr} ${price} <span style="font-size:0.7em; font-weight:normal;">x pax</span>
-                    </div>
-                </div>`;
-            }
+        const tBody = document.getElementById('pdf-tours-body'); tBody.innerHTML='';
+        document.querySelectorAll('#tbl-tours tbody tr').forEach(tr=>{
+            const item = db.tours.find(x=>x.id==tr.querySelector('select').value);
+            const sub = tr.querySelector('.row-sub').innerText;
+            if(item) tBody.innerHTML+=`<tr><td>${item.name}</td><td>${item.desc || '-'}</td><td class="pdf-col-price">${cur} ${sub}</td></tr>`;
         });
 
-        // Generar Lista Hotel PDF
-        const pdfHotels = document.getElementById('pdf-hotels-list');
-        pdfHotels.innerHTML = '';
-        document.querySelectorAll('#table-hotels tbody tr').forEach(tr => {
-            const select = tr.querySelector('select');
-            const hotelId = parseInt(select.value);
-            const hotelData = db.hotels.find(h => h.id === hotelId);
-            const totalRow = tr.querySelector('.row-total').innerText;
-            const nights = tr.querySelector('.nights').value;
-
-            if(hotelData) {
-                pdfHotels.innerHTML += `
-                <div class="pdf-item-row">
-                    <div class="pdf-img-col">
-                        ${hotelData.img ? `<img src="${hotelData.img}">` : ''}
-                    </div>
-                    <div class="pdf-desc-col">
-                        <strong>${hotelData.name}</strong><br>
-                        <div class="pdf-meta">
-                            🌙 ${nights} Noche(s)<br>
-                            🏨 Check-in: ${hotelData.checkIn} / Out: ${hotelData.checkOut}<br>
-                            ✅ ${hotelData.inc}
-                        </div>
-                    </div>
-                    <div class="pdf-price-col">
-                        ${curr} ${totalRow} <span style="font-size:0.7em; font-weight:normal;">Total</span>
-                    </div>
-                </div>`;
-            }
+        const hBody = document.getElementById('pdf-hotels-body'); hBody.innerHTML='';
+        document.querySelectorAll('#tbl-hotels tbody tr').forEach(tr=>{
+            const item = db.hotels.find(x=>x.id==tr.querySelector('.hotel-select').value);
+            const roomName = tr.querySelector('.room-select').value;
+            const nights = tr.querySelector('.qty').value;
+            const sub = tr.querySelector('.row-sub').innerText;
+            if(item) hBody.innerHTML+=`<tr><td>${item.name}</td><td>${roomName}</td><td style="text-align:center">${nights}</td><td class="pdf-col-price">${cur} ${sub}</td></tr>`;
         });
 
-        document.getElementById('pdf-final-total').innerText = document.getElementById('sum-total').innerText;
+        let subtotal = 0;
+        document.querySelectorAll('.row-sub').forEach(el => subtotal += parseFloat(el.innerText)||0);
+        const discVal = parseFloat(document.getElementById('q-discount-val').value)||0;
+        const discType = document.getElementById('q-discount-type').value;
+        let discountAmt = discType==='%' ? subtotal*(discVal/100) : discVal;
 
-        // Render PDF
-        const element = document.getElementById('pdf-content');
-        const opt = {
-            margin: 5,
-            filename: `Cotizacion_${document.getElementById('q-client').value}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2 },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-        html2pdf().set(opt).from(element).save();
+        document.getElementById('pdf-subtotal').innerText = cur + ' ' + subtotal.toFixed(2);
+        document.getElementById('pdf-discount').innerText = '- ' + cur + ' ' + discountAmt.toFixed(2);
+        document.getElementById('pdf-final').innerText = document.getElementById('sum-total').innerText;
+
+        const el = document.getElementById('pdf-content');
+        html2pdf().set({ margin: 10, filename: `Cotizacion_${document.getElementById('q-client').value}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4' }}).from(el).save();
     }
 
-    // Inicialización
-    renderCatalogList();
-    if(db.tours.length === 0) {
-        // Datos de prueba si está vacío
-        alert('Tu catálogo está vacío. Ve a la pestaña "Catálogo" para agregar tus tours y hoteles.');
+    function switchView(v) {
+        document.querySelectorAll('.view-section').forEach(x=>x.classList.remove('active'));
+        document.getElementById('view-'+v).classList.add('active');
+        document.querySelectorAll('.nav-menu button').forEach(x=>x.classList.remove('active'));
+        document.getElementById('btn-'+v).classList.add('active');
+        if(v==='quote') document.getElementById('quote-bar').style.display='flex'; else document.getElementById('quote-bar').style.display='none';
+        if(v==='dashboard') renderHistory();
+    }
+    
+    function resetQuote(){
+        document.querySelectorAll('#view-quote input').forEach(i=>i.value='');
+        document.querySelector('#tbl-tours tbody').innerHTML='';
+        document.querySelector('#tbl-hotels tbody').innerHTML='';
+        document.getElementById('q-pax').value=2;
+        recalcAll();
     }
 
+    renderCatalog(); renderHistory();
 </script>
 </body>
 </html>
