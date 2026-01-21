@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Agencia Pro v14 - Buscadores Avanzados</title>
+    <title>Agencia Pro v15 - Finanzas & PDF Oculto</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
@@ -83,14 +83,17 @@
         .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 15px 30px; border-top: 1px solid #ddd; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; z-index: 999; }
         .finance-info { display: flex; gap: 20px; align-items: center; }
         .finance-block { text-align: right; }
-        .finance-label { font-size: 0.75em; text-transform: uppercase; color: #888; }
-        .finance-value { font-size: 1.4em; font-weight: 800; color: var(--primary); }
+        .finance-label { font-size: 0.7em; text-transform: uppercase; color: #888; font-weight: 700; }
+        .finance-value { font-size: 1.3em; font-weight: 800; color: var(--primary); }
+        
+        /* Separator for internal vs client numbers */
+        .internal-metrics { display: flex; gap: 15px; border-right: 2px solid #eee; padding-right: 20px; margin-right: 10px; }
 
         /* RESPONSIVE */
-        @media (max-width: 768px) {
-            .grid-2 { grid-template-columns: 1fr; }
+        @media (max-width: 1000px) {
             .bottom-bar { flex-direction: column; gap: 15px; align-items: stretch; height: auto; padding-bottom: 25px; }
-            .finance-info { justify-content: space-between; }
+            .finance-info { flex-wrap: wrap; justify-content: space-between; }
+            .internal-metrics { border-right: none; padding-right: 0; width: 100%; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px; justify-content: space-around; }
             .action-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
             .search-box { flex-direction: column; align-items: stretch; }
         }
@@ -100,14 +103,14 @@
         .pdf-box { width: 800px; padding: 40px; background: white; font-family: Helvetica; color: #333; }
         .pdf-header { border-bottom: 3px solid #2c3e50; padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; }
         .pdf-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 15px; }
-        .pdf-table th { background: #eee; padding: 8px; text-align: left; }
+        .pdf-table th { background: #eee; padding: 8px; text-align: left; border-bottom: 2px solid #ccc;}
         .pdf-table td { padding: 8px; border-bottom: 1px solid #ddd; }
     </style>
 </head>
 <body>
 
 <nav class="navbar">
-    <div class="nav-brand"><i class="fas fa-paper-plane"></i> AgenciaPro v14</div>
+    <div class="nav-brand"><i class="fas fa-paper-plane"></i> AgenciaPro v15</div>
     <div class="nav-menu">
         <button class="nav-btn active" onclick="switchView('quote')">Cotizar</button>
         <button class="nav-btn" onclick="switchView('dashboard')">Historial</button>
@@ -149,7 +152,7 @@
             </div>
             <div class="table-container">
                 <table id="tbl-tours">
-                    <thead><tr><th width="40%">Actividad</th><th width="20%">Costo</th><th width="20%">Ganancia</th><th width="15%">Total</th><th></th></tr></thead>
+                    <thead><tr><th width="40%">Actividad</th><th width="20%">Costo Unit.</th><th width="20%">Ganancia</th><th width="15%">P. Venta</th><th></th></tr></thead>
                     <tbody></tbody>
                 </table>
             </div>
@@ -162,7 +165,7 @@
             </div>
             <div class="table-container">
                 <table id="tbl-hotels">
-                    <thead><tr><th width="40%">Hotel & Habitación</th><th width="10%">Noches</th><th width="20%">Costo</th><th width="20%">Ganancia</th><th width="15%">Total</th><th></th></tr></thead>
+                    <thead><tr><th width="40%">Hotel & Habitación</th><th width="10%">Cant/Noches</th><th width="20%">Costo Unit.</th><th width="20%">Ganancia</th><th width="15%">P. Venta</th><th></th></tr></thead>
                     <tbody></tbody>
                 </table>
             </div>
@@ -256,13 +259,25 @@
 
 <div class="bottom-bar" id="finance-bar">
     <div class="finance-info">
-        <div class="finance-block">
-            <div class="finance-label">Total</div>
+        
+        <div class="internal-metrics">
+            <div class="finance-block">
+                <div class="finance-label">Costo Neto</div>
+                <div class="finance-value" id="disp-cost" style="color:#7f8c8d; font-size:1.1em;">0.00</div>
+            </div>
+            <div class="finance-block">
+                <div class="finance-label">Ganancia</div>
+                <div class="finance-value" id="disp-profit" style="color:#27ae60; font-size:1.1em;">0.00</div>
+            </div>
+        </div>
+
+        <div class="finance-block" style="margin-right: 15px;">
+            <div class="finance-label">Total Venta</div>
             <div class="finance-value" id="disp-total">0.00</div>
         </div>
-        <div class="finance-block">
+        <div class="finance-block" style="margin-right: 15px;">
             <div class="finance-label">A Cuenta</div>
-            <input type="number" id="q-payment" value="0" oninput="recalcAll()" style="width:90px; border:none; border-bottom:1px solid #ccc; text-align:right; font-weight:bold; color:green;">
+            <input type="number" id="q-payment" value="0" oninput="recalcAll()" style="width:90px; border:none; border-bottom:1px solid #ccc; text-align:right; font-weight:bold; color:green; font-size:1.1em; background:transparent;">
         </div>
         <div class="finance-block">
             <div class="finance-label">Pendiente</div>
@@ -285,11 +300,13 @@
             <div><strong>Cliente:</strong> <span id="pdf-client"></span><br><strong>Pax:</strong> <span id="pdf-pax"></span></div>
             <div style="text-align:right;"><strong>In:</strong> <span id="pdf-in"></span><br><strong>Out:</strong> <span id="pdf-out"></span></div>
         </div>
+        
         <div id="pdf-body"></div>
+
         <div style="margin-left:auto; width:250px; text-align:right; margin-top:20px;">
-            <div style="display:flex; justify-content:space-between; padding:5px 0;"><span>Total:</span> <strong id="pdf-total"></strong></div>
+            <div style="display:flex; justify-content:space-between; padding:5px 0; border-top:1px solid #ddd;"><span>Total:</span> <strong id="pdf-total"></strong></div>
             <div style="display:flex; justify-content:space-between; padding:5px 0; color:green;"><span>A Cuenta:</span> <span id="pdf-paid"></span></div>
-            <div style="background:#2c3e50; color:white; padding:10px; font-weight:bold; display:flex; justify-content:space-between;"><span>PENDIENTE:</span> <span id="pdf-bal"></span></div>
+            <div style="background:#2c3e50; color:white; padding:10px; font-weight:bold; display:flex; justify-content:space-between; margin-top:5px;"><span>PENDIENTE:</span> <span id="pdf-bal"></span></div>
         </div>
     </div>
 </div>
@@ -439,13 +456,45 @@
         tr.querySelector('.sub').innerText=sub.toFixed(2);
         recalcAll();
     }
+    
+    // === CÁLCULO TOTAL, COSTO Y GANANCIA ===
     function recalcAll(){
-        let t=0; document.querySelectorAll('.sub').forEach(e=>t+=parseFloat(e.innerText)||0);
-        const paid=parseFloat(document.getElementById('q-payment').value)||0;
-        const cur=document.getElementById('q-currency').value;
-        document.getElementById('disp-total').innerText=cur+' '+t.toFixed(2);
-        document.getElementById('disp-balance').innerText=cur+' '+(t-paid).toFixed(2);
+        let totalVenta = 0;
+        let totalCosto = 0;
+        const pax = parseFloat(document.getElementById('q-pax').value)||1;
+
+        // Calcular Tours
+        document.querySelectorAll('#tbl-tours tbody tr').forEach(tr => {
+            // Venta
+            totalVenta += parseFloat(tr.querySelector('.sub').innerText)||0;
+            // Costo (Costo Unitario * Pax)
+            const costoUnit = parseFloat(tr.querySelector('.cost').value)||0;
+            totalCosto += (costoUnit * pax);
+        });
+
+        // Calcular Hoteles
+        document.querySelectorAll('#tbl-hotels tbody tr').forEach(tr => {
+            // Venta
+            totalVenta += parseFloat(tr.querySelector('.sub').innerText)||0;
+            // Costo (Costo Unitario * Cantidad/Noches)
+            const costoUnit = parseFloat(tr.querySelector('.cost').value)||0;
+            const qty = parseFloat(tr.querySelector('.qty').value)||1;
+            totalCosto += (costoUnit * qty);
+        });
+
+        const paid = parseFloat(document.getElementById('q-payment').value)||0;
+        const cur = document.getElementById('q-currency').value;
+        const ganancia = totalVenta - totalCosto;
+
+        // Actualizar UI
+        document.getElementById('disp-total').innerText = cur + ' ' + totalVenta.toFixed(2);
+        document.getElementById('disp-balance').innerText = cur + ' ' + (totalVenta - paid).toFixed(2);
+        
+        // Nuevos campos
+        document.getElementById('disp-cost').innerText = cur + ' ' + totalCosto.toFixed(2);
+        document.getElementById('disp-profit').innerText = cur + ' ' + ganancia.toFixed(2);
     }
+
     function delRow(b){ b.closest('tr').remove(); recalcAll(); }
     
     // === HISTORIAL (BUSCADOR AVANZADO DE FECHAS) ===
@@ -458,14 +507,12 @@
             const matchName = q.client.toLowerCase().includes(text);
             let matchDate = true;
 
-            // Logica fecha: parsear DD/MM/YYYY a Objeto Date
             if (start || end) {
-                const parts = q.date.split('/'); // Asume formato DD/MM/YYYY
-                const qDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`); // YYYY-MM-DD
+                const parts = q.date.split('/'); 
+                const qDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`); 
                 
                 if (start) {
                     const sDate = new Date(start);
-                    // Resetear horas para comparar solo dia
                     sDate.setHours(0,0,0,0); qDate.setHours(0,0,0,0);
                     if (qDate < sDate) matchDate = false;
                 }
@@ -516,6 +563,7 @@
         recalcAll(); switchView('quote');
     }
 
+    // === GENERAR PDF (MODIFICADO: Sin precios detallados) ===
     function generatePDF(){
         const cur = document.getElementById('q-currency').value;
         const tot = document.getElementById('disp-total').innerText.split(' ')[1];
@@ -528,15 +576,31 @@
         document.getElementById('pdf-in').innerText=document.getElementById('q-in').value;
         document.getElementById('pdf-out').innerText=document.getElementById('q-out').value;
 
-        let h = '<table class="pdf-table"><thead><tr><th>Descripción</th><th style="text-align:right">Importe</th></tr></thead><tbody>';
+        // Construir tabla sin columna de precios
+        let h = '<table class="pdf-table"><thead><tr><th style="border-bottom:2px solid #333; padding-bottom:5px;">DESCRIPCIÓN DE SERVICIOS</th></tr></thead><tbody>';
+        
+        // Tours
         document.querySelectorAll('#tbl-tours tbody tr').forEach(tr=>{
-            const txt = tr.querySelector('select').options[tr.querySelector('select').selectedIndex].text;
-            h+=`<tr><td>${txt} (Tour)</td><td style="text-align:right">${cur} ${tr.querySelector('.sub').innerText}</td></tr>`;
+            const sel = tr.querySelector('select');
+            if(sel.selectedIndex > -1) {
+                const txt = sel.options[sel.selectedIndex].text;
+                if(txt !== '-- Seleccionar --') {
+                    h+=`<tr><td style="padding:10px 5px;">• Tour: ${txt}</td></tr>`;
+                }
+            }
         });
+        
+        // Hoteles
         document.querySelectorAll('#tbl-hotels tbody tr').forEach(tr=>{
-            const txt = tr.querySelector('.dynamic').options[tr.querySelector('.dynamic').selectedIndex].text;
+            const sel = tr.querySelector('.dynamic');
             const rm = tr.querySelector('.room-select').value;
-            h+=`<tr><td>${txt} - ${rm}</td><td style="text-align:right">${cur} ${tr.querySelector('.sub').innerText}</td></tr>`;
+            if(sel.selectedIndex > -1) {
+                const txt = sel.options[sel.selectedIndex].text;
+                if(txt !== '-- Seleccionar --') {
+                     const noches = tr.querySelector('.qty').value;
+                    h+=`<tr><td style="padding:10px 5px;">• Alojamiento: ${txt} - ${rm} (${noches} noches/und)</td></tr>`;
+                }
+            }
         });
         h+='</tbody></table>';
         document.getElementById('pdf-body').innerHTML=h;
